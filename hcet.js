@@ -103,9 +103,12 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
 
             var dimensions = new Array();
             var measures = new Array();
+            var customers = new Array();
             var lastrow = 0;
-            var currCount =0;
+            var currCount = 0;
             var currGroup = 0;
+
+            var allData = [];
 
             $.each(this.backendApi.getDimensionInfos(), function(key, value) {
                 dimensions.push(value.qFallbackTitle);
@@ -113,44 +116,33 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
 
             $.each(this.backendApi.getMeasureInfos(), function(key, value) {
                 measures.push(value.qFallbackTitle);
+                // init an empty array for this measure
+                allData.push({
+                    name: value.qFallbackTitle,
+                    data: []
+                });
             });
 
             $element.html(html);
-            
-            var objects = [];
-            
+
             this.backendApi.eachDataRow(function(rownum, row) {
-				lastrow = rownum;
-				//for striping purposes
-				if(currCount==0){
-					currCount=stripeCount;
-					currGroup = -(currGroup-1);
-				}	
-                
-                var obj	= {};		
-				
-                if(rownum < 5) {
-				$.each(row, function(key, cell) {
-					
-                    
-                    
-                    if (key == 0) {
-                        obj['name'] = cell.qText;
-                    }
-                    else {
-                        if (!obj['data'])
-                            obj['data'] = [];
-                        obj['data'].push(cell.qNum);
-                    }
-					
-					
-				});
-                
-                objects.push(obj);
-                
-				currCount--;
+
+                var obj = {};
+
+                if (rownum < 5) {
+                    $.each(row, function(key, cell) {
+
+                        if (key == 0) {
+                            customers.push(cell.qText);
+                        } else {
+                            allData[key-1].data.push(cell.qNum)
+                        }
+
+
+                    });
+
                 }
-			});
+            });
 
             $('#cont1').highcharts({
                 chart: {
@@ -163,7 +155,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                     text: 'Source: <a href="https://en.wikipedia.org/">Wikipedia.org</a>'
                 },
                 xAxis: {
-                    categories: measures,
+                    categories: customers,
                     title: {
                         text: null
                     }
@@ -202,7 +194,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                 credits: {
                     enabled: false
                 },
-                series: objects
+                series: allData
             });
 
             //console.log(this.backendApi.model.properties.extraSettings.esStripes);
