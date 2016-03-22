@@ -1,4 +1,4 @@
-QlikSense-SimpleTableThemed
+QlikSense HighCharts Extension Test
 =========================
 
-Just started messing around with the files. Basically, slowly adding new appearance settings to the Simple Table extension object.
+This is a test to understand how HighCharts work with QlikSense Extension

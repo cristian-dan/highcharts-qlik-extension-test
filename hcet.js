@@ -160,7 +160,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                     text: "Highcharts extensions test"
                 },
                 subtitle: {
-                    text: 'Source: <a href="https://en.wikipedia.org/wiki/World_population">Wikipedia.org</a>'
+                    text: 'Source: <a href="https://en.wikipedia.org/">Wikipedia.org</a>'
                 },
                 xAxis: {
                     categories: measures,
