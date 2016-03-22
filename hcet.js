@@ -129,7 +129,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
 
                 var obj = {};
 
-                if (rownum < 5) {
+                if (rownum < 10) {
                     $.each(row, function(key, cell) {
 
                         if (key == 0) {
@@ -152,7 +152,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                     text: "Highcharts extensions test"
                 },
                 subtitle: {
-                    text: 'Source: <a href="https://en.wikipedia.org/">Wikipedia.org</a>'
+                    text: 'Source: <a href="https://github.com/cristian-dan/highcharts-qlik-extension-test.git">Github.com</a>'
                 },
                 xAxis: {
                     categories: customers,
