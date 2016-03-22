@@ -47,7 +47,8 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
             items: {
                 dimensions: {
                     uses: "dimensions",
-                    min: 1
+                    min: 1,
+                    max: 1
                 },
                 measures: {
                     uses: "measures",
