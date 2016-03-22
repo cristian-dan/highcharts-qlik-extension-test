@@ -1,0 +1,9 @@
+{
+	"name" : "HCET",
+	"description" : "Highcharts extension test",
+	"icon" : "table",
+	"type" : "visualization",
+	"version": "1.0",
+	"preview" : "table",
+	"author": "QlikTech International AB (modded by Jason Mondesir)"
+}
