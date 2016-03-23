@@ -97,10 +97,11 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
         snapshot: {
             canTakeSnapshot: true
         },
-        paint: function($element) {
+        paint: function($element, layout) {
             var stripeSettings = this.backendApi.model.layout.striping;
             var stripeCount = this.backendApi.model.layout.striping.freq;
-            var html = html + "<div id='cont1'></div>";
+            var id = layout.qInfo.qId + '_cont1';
+            var html = html + "<div id='" + id + "'></div>";
 
             var dimensions = new Array();
             var measures = new Array();
@@ -145,7 +146,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                 }
             });
 
-            $('#cont1').highcharts({
+            $('#'+id).highcharts({
                 chart: {
                     type: 'bar'
                 },
