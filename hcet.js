@@ -45,10 +45,23 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
             type: "items",
             component: "accordion",
             items: {
+                additionalProperties: {
+					type: "items",
+					label: "Chart Settings",
+					items: {
+						property1: {
+                          	ref: "chartType",
+                          	type : "string",
+							component : "dropdown",
+							label : "Chart Type",
+                            options :[{value:"line",label:"Line"},{value:"pie",label:"Pie"}]
+                        }
+                    }
+                },
                 dimensions: {
                     uses: "dimensions",
                     min: 1,
-                    max: 1
+                    max: 2
                 },
                 measures: {
                     uses: "measures",
