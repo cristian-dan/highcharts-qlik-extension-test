@@ -1,5 +1,8 @@
 requirejs.config({
     shim: {
+        "extensions/hcet/app/dataProcessing": {
+            "deps": []
+        },
         "extensions/hcet/js/highcharts.src": {
             "deps": []
         },
@@ -21,7 +24,7 @@ requirejs.config({
 
 
 
-define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './js/exporting.src', './js/highcharts-more.src', './js/offline-exporting.src'], function($, cssContent) {
+define(["jquery", "text!./hcet.css", './app/dataProcessing', './js/highcharts.src', './js/data.src', './js/exporting.src', './js/highcharts-more.src', './js/offline-exporting.src'], function($, cssContent, dataProcessing) {
     'use strict';
     $("<style>").html(cssContent).appendTo("head");
     return {
@@ -46,15 +49,21 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
             component: "accordion",
             items: {
                 additionalProperties: {
-					type: "items",
-					label: "Chart Settings",
-					items: {
-						property1: {
-                          	ref: "chartType",
-                          	type : "string",
-							component : "dropdown",
-							label : "Chart Type",
-                            options :[{value:"line",label:"Line"},{value:"pie",label:"Pie"}]
+                    type: "items",
+                    label: "Chart Settings",
+                    items: {
+                        property1: {
+                            ref: "chartType",
+                            type: "string",
+                            component: "dropdown",
+                            label: "Chart Type",
+                            options: [{
+                                value: "line",
+                                label: "Line"
+                            }, {
+                                value: "pie",
+                                label: "Pie"
+                            }]
                         }
                     }
                 },
@@ -118,12 +127,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
 
             var dimensions = new Array();
             var measures = new Array();
-            var customers = new Array();
-            var lastrow = 0;
-            var currCount = 0;
-            var currGroup = 0;
 
-            var allData = [];
 
             $.each(this.backendApi.getDimensionInfos(), function(key, value) {
                 dimensions.push(value.qFallbackTitle);
@@ -131,35 +135,31 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
 
             $.each(this.backendApi.getMeasureInfos(), function(key, value) {
                 measures.push(value.qFallbackTitle);
-                // init an empty array for this measure
-                allData.push({
-                    name: value.qFallbackTitle,
-                    data: []
-                });
             });
+
+            dataProcessing.init(dimensions, measures)
 
             $element.html(html);
 
-            this.backendApi.eachDataRow(function(rownum, row) {
+            if (dataProcessing.isEmpty()) {
+                // if there's no data, we get it from the backendApi
+                this.backendApi.eachDataRow(function(rownum, row) {
 
-                var obj = {};
-
-                if (rownum < 10) {
-                    $.each(row, function(key, cell) {
-
-                        if (key == 0) {
-                            customers.push(cell.qText);
-                        } else {
-                            allData[key-1].data.push(cell.qNum)
+                    if (rownum < 10) { // limit the values for testing purposes
+                        if (row.length > 0) {
+                            dataProcessing.addRow(row);
                         }
+                    }
+                });
+            }
+
+            var processedData = dataProcessing.getDataForBarChart();
+
+            console.log(processedData);
 
 
-                    });
 
-                }
-            });
-
-            $('#'+id).highcharts({
+            $('#' + id).highcharts({
                 chart: {
                     type: 'bar'
                 },
@@ -170,7 +170,7 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                     text: 'Source: <a href="https://github.com/cristian-dan/highcharts-qlik-extension-test.git">Github.com</a>'
                 },
                 xAxis: {
-                    categories: customers,
+                    categories: processedData.categories,
                     title: {
                         text: null
                     }
@@ -209,82 +209,9 @@ define(["jquery", "text!./hcet.css", './js/highcharts.src', './js/data.src', './
                 credits: {
                     enabled: false
                 },
-                series: allData
+                series: processedData.series
             });
 
-            //console.log(this.backendApi.model.properties.extraSettings.esStripes);
-            /*var html = "<table><thead><tr>", self = this, lastrow = 0, morebutton = false;
-            //render titles
-            $.each(this.backendApi.getDimensionInfos(), function(key, value) {
-            	html += '<th>' + value.qFallbackTitle + '</th>';
-            });
-            $.each(this.backendApi.getMeasureInfos(), function(key, value) {
-            	html += '<th>' + value.qFallbackTitle + '</th>';
-            });
-            html += "</tr></thead><tbody>";
-			
-            //striping properties			
-            var currCount = stripeCount,
-            	currGroup = 1,
-            	stripePair = [stripeSettings.groupA,stripeSettings.groupB];//TODO: add logic that will allow changing of color stripes
-            	
-            //render data
-            this.backendApi.eachDataRow(function(rownum, row) {
-            	lastrow = rownum;
-            	//for striping purposes
-            	if(currCount==0){
-            		currCount=stripeCount;
-            		currGroup = -(currGroup-1);
-            	}				
-            	
-            	html += '<tr';			
-            	//for striping purposes
-            	//TODO: add logic that will allow striping to be optional
-            	html += " style='";
-            	html += "background-color:"+stripePair[currGroup];
-            	html += "'";
-            	
-            	html+= '>';
-            	$.each(row, function(key, cell) {
-            		
-            		
-            		if(cell.qIsOtherCell) {
-            			cell.qText = self.backendApi.getDimensionInfos()[key].othersLabel;
-            		}
-            		html += '<td';					
-            		if(!isNaN(cell.qNum)) {
-            			html += " class='numeric'";
-            		}
-            		
-            		html += '>' + cell.qText + '</td>';
-            		
-            	});
-            	html += '</tr>';
-            	currCount--;
-            });
-            html += "</tbody></table>";*/
-            //add 'more...' button
-
-
-            /*if(this.backendApi.getRowCount() > lastrow + 1) {
-				html += "<button id='more'>More...</button>";
-				morebutton = true;
-			}
-			$element.html(html);
-			if(morebutton) {
-				var requestPage = [{
-					qTop : lastrow + 1,
-					qLeft : 0,
-					qWidth : 10, //should be # of columns
-					qHeight : Math.min(50, this.backendApi.getRowCount() - lastrow)
-				}];
-				$element.find("#more").on("qv-activate", function() {
-					self.backendApi.getData(requestPage).then(function(dataPages) {
-						self.paint($element);
-					});
-				});
-			}
-            */
         }
     };
 });
