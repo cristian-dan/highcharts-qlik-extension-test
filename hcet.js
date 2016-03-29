@@ -3,6 +3,12 @@ requirejs.config({
         "extensions/hcet/app/dataProcessing": {
             "deps": []
         },
+        "extensions/hcet/app/highchartsBarType": {
+            "deps": []
+        },
+        "extensions/hcet/app/highchartsTypeStrategy": {
+            "deps": ['./highchartsBarType']
+        },
         "extensions/hcet/js/highcharts.src": {
             "deps": []
         },
@@ -24,7 +30,7 @@ requirejs.config({
 
 
 
-define(["jquery", "text!./hcet.css", './app/dataProcessing', './js/highcharts.src', './js/data.src', './js/exporting.src', './js/highcharts-more.src', './js/offline-exporting.src'], function($, cssContent, dataProcessing) {
+define(["jquery", "text!./hcet.css", './app/dataProcessing', './app/highchartsTypeStrategy', './js/highcharts.src', './js/data.src', './js/exporting.src', './js/highcharts-more.src', './js/offline-exporting.src'], function($, cssContent, dataProcessing, highchartsTypeStrategy) {
     'use strict';
     $("<style>").html(cssContent).appendTo("head");
     return {
@@ -74,7 +80,8 @@ define(["jquery", "text!./hcet.css", './app/dataProcessing', './js/highcharts.sr
                 },
                 measures: {
                     uses: "measures",
-                    min: 0
+                    min: 1,
+                    max: 1
                 },
                 sorting: {
                     uses: "sorting"
